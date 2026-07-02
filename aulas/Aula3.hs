@@ -1,103 +1,47 @@
-module Aula3 where
+module Aula4 where
   
-  mcurry :: (a -> b -> c) -> (a,b) -> c
-  mcurry f = \(x,y) -> f x y
+  data MBool = T | F deriving Show
 
-  --muncurry :: ((a, b) -> c) -> a -> b -> c
-  muncurry g = \x y -> g (x,y)
+  mand :: MBool -> MBool -> MBool
+  mand T b = b
+  mand F _ = F
 
-  fun x y = x < 2*y;
+  data LInt = Nil Int
+    | Con Int LInt deriving Show
+   
+  data Pessoa = PFisica String Int
+    | PJuridica String [Int] deriving Show
 
-  quickSort :: (a -> a -> Bool) ->  [a] -> [a]
-  quickSort c [] = []
-  quickSort c [x] = [x]
-  quickSort c (x:xs) = (quickSort c (mfilter (c x) xs)) 
-                    ++ [x] 
-                    ++ (quickSort c (mfilter (\y -> not (c x y)) xs))
+  data Nat = Z
+    | S Nat deriving (Show, Eq, Ord)
+ 
+  soma :: Nat -> Nat -> Nat 
+  soma Z x = x
+  soma (S x) y = S(soma x y) 
 
-  mfilter :: (a -> Bool) -> [a] -> [a]
-  mfilter p [] = []
-  mfilter p (x:xs)
-    | p x = x:mfilter p xs
-    | otherwise = mfilter p xs
+  data ML a = Nil | Cons a (ML a) deriving Show 
 
-  smallers x xs = mfilter(<x) xs
-  greaters x xs = mfilter (>= x) xs
+  mlHead :: ML a -> a
+  mlHead (Cons x _) = x
 
-  takeWhl p [] = []
-  takeWhl p (x:xs)
-    | p x = x : takeWhl p xs
-    | otherwise = []
+  mlConcat :: ML a -> ML a -> ML a
+  mlConcat (Nil) xs = xs
+  mlConcat  (Cons y ys) xs = Cons y (mlConcat ys xs)
 
-  dropWhl p [] = []
-  dropWhl p (x:xs)
-    | p x = dropWhl p xs
-    | otherwise = xs
-  
-  mmap :: (a -> b) -> [a] -> [b]
-  mmap f [] = []
-  mmap f (x:xs) = (f x):mmap f xs
+  hs2ML :: ML a -> [a]
+  hs2ML Nil = []
+  hs2ML (Cons x xs) = x:hs2ML xs
 
-  mzip :: [a] -> [b] -> [(a,b)]
-  mzip [] _ = []
-  mzip _ [] = []
-  mzip (x:xs) (y:ys) = (x,y):mzip xs ys
+  lookp :: Eq a => [(a,b)] -> a -> b
+  lookp [] x = error (" No key " ++ (show x) ++ "in table ")
+  loolp ((k,v):xs) x
+    | k == x = v
+    | otherwise = lookp xs x
 
-  mzipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-  mzipWith _ [] _ = []
-  mzipWith _ _ [] = []
-  mzipWith f (x:xs) (y:ys) = (f x y):mzipWith f xs ys
-  
-  mfoldr :: (a -> b -> b ) -> b -> [a] -> b
-  mfoldr f v [] = v
-  mfoldr f v (x:xs) = f x (foldr f v xs)
+  --data Maybe a = Just a| Nothing
+  lookpc :: Eq a => [(a,b)] -> a -> Maybe b
+  lookpc [] x = error (" No key " ++ (show x) ++ "in table ")
+  lookpc ((k,v):xs) x
+    | k == x = Just v
+    | otherwise = lookp xs x
 
-  fmmap f xs = mfoldr g v xs
-    where v = []
-          g z zs = (f z):zs
-
-  -- zipWith usando foldr eh possivel?
-  fmfilter p xs = mfoldr g v xs
-    where v = []
-      g z zs = (f z):zs
-
-  fmfilter p xs = mfoldr g v xs
-    where v = []
-      g z zs
-        | p z = z:zs
-        | otherwise = zs
-
-  
-  rev [] = []
-  rev (x:xs) = (rev xs) ++ [x]
-  
-  revc :: [a] -> [a]
-  revc xs = revc1 xs []
-    where
-      revc1 [] b = b
-      revc1 (x:xs) b = revc1 xs (x:b)
-
-
-  mfoldl :: (b -> a -> b) -> b -> [a] -> b
-  mfoldl _ v [] = v
-  mfoldl f v (x:xs) = mfoldl f (f v x) xs
-
-  -- expresar foldl em termo de foldr
-  
-  flp :: (a -> b -> c) -> b -> a -> c
-  flp f x y = f y x
-
-  -- List comprehenshion
-  
-  -- [ pattern | x1 <- g1, x2 <- g2, precidate x1 x2 ]
-  
-  filerLc p xs = [y | y <- xs, p y]
-
-  permutate :: [a] -> [[a]]
-  permutate [] = [[]]
-  permutate (x:xs) = concat [ insIn x ws | ws <- permutate xs]
-
-  insIn x [] = [[x]]
-  insIn x (z:zs) = (x:zs:zs) : (map (z:) (insIn x zs))
-
-  -- lcMap f xs = [f x \ <- xs]
